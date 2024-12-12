@@ -3,7 +3,7 @@ import Table from "./components/Table";
 const Train = () => {
   return (
     <>
-      <div className="flex flex-col w-screen h-screen p-4 px-12 space-y-8 pt-20">
+      <div className="flex flex-col w-screen h-screen p-4 px-12 space-y-8 pt-20 text-black">
         <h1 className="w-full text-4xl p-4 border-b-1 border-b">
           Training Data
         </h1>

@@ -23,6 +23,7 @@ export default function ChatInterface() {
         ...prevMessages,
         { content: inputMessage, isUser: true },
       ]);
+      console.log("history", messages)
       handleSendMessage(inputMessage);
       setInputMessage("");
     }
@@ -41,10 +42,10 @@ export default function ChatInterface() {
     } catch (error) {
       console.error('Error sending message:', error);
     }
-  };
+  };    
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-white pt-20">
+    <div className="flex flex-col h-screen w-screen bg-white pt-20 text-black">
       {/* Chat Area */}
       {messages.length ? (
         <div className="w-full flex-1 self-center overflow-y-auto max-w-3xl p-4 space-y-4">
@@ -106,6 +107,7 @@ export default function ChatInterface() {
             }}
             className="w-full p-4 pr-24 rounded-lg border border-gray-300 focus:outline-none focus:border-gray-400 bg-gray-50"
             rows={4} // Number of rows visible
+            style={{resize: "none"}}
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
             <button

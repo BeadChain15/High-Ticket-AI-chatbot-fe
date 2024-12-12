@@ -16,9 +16,9 @@ const Header = () => {
   return (
     <>
       {/* Header */}
-      <div className="flex fixed w-full bg-white items-center justify-between px-4 py-3 border-b">
+      <div className="flex fixed w-full bg-white items-center justify-between px-4 py-3 border-b text-black">
         <div className="flex items-center gap-2">
-          <h1 className="text-5xl font-medium text-black">High Ticket AI</h1>
+          <h1 className="text-5xl font-medium">High Ticket AI</h1>
         </div>
         <div className="flex space-x-4 px-10">
           <div 

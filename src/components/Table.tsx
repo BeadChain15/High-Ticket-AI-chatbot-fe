@@ -26,7 +26,7 @@ export default function Table() {
   }
 
   return (
-    <div className="w-full px-20">
+    <div className="w-full px-20 text-black">
       <table className="w-full border">
         <thead>
           <tr className="bg-gray-100">
@@ -46,7 +46,7 @@ export default function Table() {
                   className="text-gray-500 hover:text-gray-700 focus:outline-none"
                   aria-label={`Delete ${item.title}`}
                 >
-                  <Trash2 className="h-5 w-5" />
+                  <Trash2 className="h-5 w-5 text-red-900" />
                 </button>
               </td>
             </tr>

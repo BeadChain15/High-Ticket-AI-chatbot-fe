@@ -24,18 +24,18 @@ const Prompt = () => {
 
   return (
     <>
-      <div className="w-screen h-screen p-4 px-12 space-y-2  pt-20">
-        <h1 className="w-full text-4xl text-black p-4 border-b-1 border-b">
+      <div className="w-screen h-screen p-4 px-12 space-y-2 pt-20 text-black">
+        <h1 className="flex w-3/4 justify-self-center text-4xl p-4 border-b-1 border-b">
           Prompt
         </h1>
         <textarea
           ref={textareaRef}
-          className="w-full border-2 border-black p-4 overflow-hidden"
+          className="flex w-2/3 justify-self-center border-2 border-black p-4 overflow-hidden"
           value={text}
           style={{resize: "none"}}
           onChange={handleChange}
         ></textarea>
-        <div className="flex justify-end space-x-4">
+        <div className="flex w-5/6 justify-end space-x-4">
           <button>Save</button>
           <button>Cancel</button>
         </div>
