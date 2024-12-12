@@ -67,8 +67,7 @@ export default function ChatInterface() {
         )}
 
         <form onSubmit={handleSubmit} className="relative flex">
-          <input
-            type="text"
+          <textarea
             placeholder={
               messages.length
                 ? "Ask a follow up question..."
@@ -76,12 +75,20 @@ export default function ChatInterface() {
             }
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={(e) => {
+            onKeyDown={(e) => {
               if (e.key === "Enter") {
-                handleSubmit(e);
+                if (e.shiftKey) {
+                  // Allow new line if Shift is pressed with Enter
+                  return; // Nothing to do here, just let it go
+                } else {
+                  // If only Enter is pressed, handle submit
+                  e.preventDefault(); // Prevent default behavior of Enter key
+                  handleSubmit(e); // Call your submit function
+                }
               }
             }}
             className="w-full p-4 pr-24 rounded-lg border border-gray-300 focus:outline-none focus:border-gray-400 bg-gray-50"
+            rows={4} // Number of rows visible
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
             <button
