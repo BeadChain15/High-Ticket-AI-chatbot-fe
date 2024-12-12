@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { ArrowRight } from "lucide-react";
+import axios from "axios";
 
 interface Message {
   content: string;
@@ -22,7 +23,23 @@ export default function ChatInterface() {
         ...prevMessages,
         { content: inputMessage, isUser: true },
       ]);
+      handleSendMessage(inputMessage);
       setInputMessage("");
+    }
+  };
+
+  const handleSendMessage = async (message: string) => {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/chat`, {
+        message: message
+      });
+      console.log("response", response.data.response)
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { content: response.data.response, isUser: false }
+      ]);
+    } catch (error) {
+      console.error('Error sending message:', error);
     }
   };
 
