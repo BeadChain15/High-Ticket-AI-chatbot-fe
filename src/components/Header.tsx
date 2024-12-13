@@ -11,8 +11,6 @@ const Header = () => {
     navigate(section);
   };
 
-  console.log("Pathname", location.pathname)
-
   return (
     <>
       {/* Header */}
