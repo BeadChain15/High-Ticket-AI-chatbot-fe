@@ -1,17 +1,19 @@
+import axios from 'axios';
 import { Conversation, Message } from '../types';
 
 class ChatStoreService {
   private currentConversation: Conversation | null = null;
+  private currentThreadId: string | null = null
 
   constructor() {
-    // Load conversation from localStorage on initialization
-    const savedConversation = localStorage.getItem('currentConversation');
+    // Load conversation from sessionStorage on initialization
+    const savedConversation = sessionStorage.getItem('currentConversation');
     if (savedConversation) {
       const parsed = JSON.parse(savedConversation);
-      // Convert ISO strings back to Date objects for timestamps
+      // Convert ISO strings back to Date objects for timestamps if necessary
       parsed.messages = parsed.messages.map((msg: Message) => ({
         ...msg,
-        // timestamp: new Date(msg.timestamp)
+        // timestamp: new Date(msg.timestamp) // Uncomment if needed
       }));
       this.currentConversation = parsed;
     }
@@ -28,6 +30,10 @@ class ChatStoreService {
     return this.currentConversation;
   }
 
+  getCurrentThreadId(): string {
+    return this.currentThreadId || ""
+  }
+
   addMessage(message: Message): void {
     if (!this.currentConversation) {
       this.getCurrentConversation();
@@ -36,18 +42,35 @@ class ChatStoreService {
     this.saveToStorage();
   }
 
-  startNewThread(): void {
-    this.currentConversation = {
-      id: Date.now().toString(),
-      messages: [],
-    };
-    this.saveToStorage();
+  async startNewThread(threadId: string) {
+    console.log("step2")
+    await axios
+    .post(`${import.meta.env.VITE_API_URL}/api/thread`, {threadId})
+    .then((res) => {
+      console.log("--New ThreadID--", res.data)
+       if (res.data) {
+        this.currentConversation = {
+          id: Date.now().toString(),
+          messages: [],
+        };
+        this.currentThreadId = res.data
+        this.saveToStorage();
+       }
+      })
+      .catch((error) => {
+        console.error("Error creating new thread:", error);
+      });
+      console.log("step3")
   }
 
   private saveToStorage(): void {
-    localStorage.setItem(
+    sessionStorage.setItem(
       'currentConversation',
       JSON.stringify(this.currentConversation)
+    );
+    sessionStorage.setItem(
+      'currentThreadId',
+      JSON.stringify(this.currentThreadId)
     );
   }
 }

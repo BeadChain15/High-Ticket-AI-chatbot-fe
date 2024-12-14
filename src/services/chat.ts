@@ -15,3 +15,16 @@ export const getHistory = () => {
     console.log("chatHistory", chatHistory)
     return chatHistory;
 };
+
+export const sendMessage = async (message: string, threadId: string) => {
+    try {
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/chat`, {
+            message: message,
+            threadId: threadId
+        });
+        return res.data; // Return the response data
+    } catch (error) {
+        console.error('Error sending message:', error); // Log the error for debugging
+        throw error; // Re-throw the error after logging
+    }
+}

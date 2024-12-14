@@ -2,74 +2,101 @@
 
 import React, { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import axios from "axios";
-import { getHistory } from "../services/chat";
-import { Message } from "../types";
+// import axios from "axios";
+// import { getHistory } from "../services/chat";
+import { Conversation, Message } from "../types";
+import { chatStoreService } from "../services/chatStoreService";
+import { sendMessage } from "../services/chat";
+import Thinking from "../components/Thinking";
 
 // export interface Message {
 //   content: string;
 //   role: 'user' | 'assistant' | 'system' | 'function';
 // }
 
-interface ChatProps {
-  messages: Message[];
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-}
-
-const ChatInterface = ({ messages, setMessages }: ChatProps) => {
+const ChatInterface = () => {
+  const [conversation, setConversation] = useState<Conversation>(
+    chatStoreService.getCurrentConversation()
+  );
   const [inputMessage, setInputMessage] = useState("");
+  const [threadId] = useState(chatStoreService.getCurrentThreadId());
+  const [thinking, setThinking] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    setThinking(true);
     e.preventDefault();
     if (inputMessage.trim()) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { content: inputMessage, role: 'user' },
-      ]);
-      handleSendMessage(inputMessage);
+      const userMessage: Message = {
+        content: inputMessage,
+        role: "user",
+      };
+      chatStoreService.addMessage(userMessage);
+      setConversation(chatStoreService.getCurrentConversation());
+      console.log("conversation:", conversation, userMessage);
+
+      const response = await sendMessage(inputMessage, threadId);
+      console.log(response);
+      const botMessage: Message = {
+        content: response.response,
+        role: "assistant",
+      };
+      chatStoreService.addMessage(botMessage);
+      setConversation(chatStoreService.getCurrentConversation());
       setInputMessage("");
+      setThinking(false);
     }
   };
 
-  const handleSendMessage = async (message: string) => {
-    try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/chat`, {
-        message: message
-      });
-      setMessages(prevMessages => [
-        ...prevMessages,
-        { content: response.data.response, role: 'assistant' },
-      ]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
+  const handleNewThread = async () => {
+    await chatStoreService.startNewThread(
+      chatStoreService.getCurrentThreadId()
+    );
+    setConversation(chatStoreService.getCurrentConversation());
+    setInputMessage("");
   };
 
   useEffect(() => {
-    const getChatHistory = async () => {
-      try {
-        const history = await getHistory();
-        setMessages(history);
-      } catch (error) {
-        console.error("Error fetching chat history:", error);
-      }
-    };
+    const chatContainer = document.getElementById("chat-container");
+    if (chatContainer) {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  }, [inputMessage, thinking]);
 
-    getChatHistory();
-  }, [setMessages]);
+  // console.log("Render", new Date().getTime());
 
   return (
     <div className="flex flex-col h-screen w-screen bg-white pt-20 text-black">
+      <button
+        onClick={handleNewThread}
+        className="absolute w-fit rounded-lg bg-gray-500 px-4 py-2 mx-4 text-white hover:bg-gray-600"
+      >
+        New Chat
+      </button>
       {/* Chat Area */}
-      {messages.length ? (
-        <div className="w-full flex-1 self-center overflow-y-auto max-w-3xl p-4 space-y-4">
-          {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] rounded-lg px-4 py-2 ${message.role === 'user' ? "bg-gray-100" : "bg-white border border-gray-200"}`}>
+      {conversation.messages.length ? (
+        <div
+          id="chat-container"
+          className="w-full flex-1 self-center overflow-y-auto max-w-3xl p-4 space-y-4"
+        >
+          {conversation.messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex ${
+                message.role === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
+              <div
+                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                  message.role === "user"
+                    ? "bg-gray-100"
+                    : "bg-white border border-gray-200"
+                }`}
+              >
                 {message.content}
               </div>
             </div>
           ))}
+          {thinking && <Thinking />}
         </div>
       ) : (
         <div className="text-center text-3xl text-black pt-20">
@@ -78,10 +105,19 @@ const ChatInterface = ({ messages, setMessages }: ChatProps) => {
       )}
 
       {/* Footer */}
-      <div className={`w-full p-4 self-center max-w-3xl ${messages.length ? "border-t" : "pt-48 "}`}>
+      <div
+        className={`w-full p-4 self-center max-w-3xl ${
+          conversation.messages.length ? "border-t" : ""
+        }`}
+      >
         <form onSubmit={handleSubmit} className="relative flex">
           <textarea
-            placeholder={messages.length ? "Ask a follow-up question..." : "Ask a question about any High Ticket topic..."}
+            disabled={thinking}
+            placeholder={
+              conversation.messages.length
+                ? "Ask a follow-up question..."
+                : "Ask a question about any High Ticket topic..."
+            }
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={(e) => {
