@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
-// import axios from "axios";
-// import { getHistory } from "../services/chat";
 import { Conversation, Message } from "../types";
 import { chatStoreService } from "../services/chatStoreService";
 import { sendMessage } from "../services/chat";
 import Thinking from "../components/Thinking";
+import MarkdownRenderer from "../components/Markdown";
 
 // export interface Message {
 //   content: string;
@@ -19,7 +18,7 @@ const ChatInterface = () => {
     chatStoreService.getCurrentConversation()
   );
   const [inputMessage, setInputMessage] = useState("");
-  const [threadId] = useState(chatStoreService.getCurrentThreadId());
+  const [threadId, setThreadId] = useState<string>(chatStoreService.getCurrentThreadId());
   const [thinking, setThinking] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,6 +32,7 @@ const ChatInterface = () => {
       chatStoreService.addMessage(userMessage);
       setConversation(chatStoreService.getCurrentConversation());
       console.log("conversation:", conversation, userMessage);
+      console.log("threadId:", threadId);
 
       const response = await sendMessage(inputMessage, threadId);
       console.log(response);
@@ -62,7 +62,11 @@ const ChatInterface = () => {
     }
   }, [inputMessage, thinking]);
 
-  // console.log("Render", new Date().getTime());
+  useEffect(() => {
+    setThreadId(chatStoreService.getCurrentThreadId())
+  }, [])
+
+  console.log("Render", sessionStorage.getItem('currentThreadId'), chatStoreService.getCurrentThreadId(), "||" , threadId);
 
   return (
     <div className="flex flex-col h-screen w-screen bg-white pt-20 text-black">
@@ -92,7 +96,10 @@ const ChatInterface = () => {
                     : "bg-white border border-gray-200"
                 }`}
               >
-                {message.content}
+                {/* <ReactMarkdown remarkPlugins={[remarkGfm]} >
+                  {message.content}
+                </ReactMarkdown> */}
+                <MarkdownRenderer markdown={message.content}/>
               </div>
             </div>
           ))}
@@ -112,7 +119,7 @@ const ChatInterface = () => {
       >
         <form onSubmit={handleSubmit} className="relative flex">
           <textarea
-            disabled={thinking}
+            // disabled={thinking}
             placeholder={
               conversation.messages.length
                 ? "Ask a follow-up question..."

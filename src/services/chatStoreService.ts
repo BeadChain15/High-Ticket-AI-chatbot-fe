@@ -17,6 +17,7 @@ class ChatStoreService {
       }));
       this.currentConversation = parsed;
     }
+    this.currentThreadId = sessionStorage.getItem('currentThreadId')
   }
 
   getCurrentConversation(): Conversation {
@@ -31,6 +32,7 @@ class ChatStoreService {
   }
 
   getCurrentThreadId(): string {
+    console.log("Class:::", this.currentThreadId, sessionStorage.getItem('currentThreadId'))
     return this.currentThreadId || ""
   }
 

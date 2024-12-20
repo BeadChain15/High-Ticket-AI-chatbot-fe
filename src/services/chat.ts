@@ -18,6 +18,7 @@ import axios from "axios";
 
 export const sendMessage = async (message: string, threadId: string) => {
     try {
+        console.log("threadID", threadId)
         const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/chat`, {
             message: message,
             threadId: threadId
